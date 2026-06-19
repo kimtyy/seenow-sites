@@ -1,0 +1,219 @@
+/* style.css - 모던 & 미니멀 UI 디자인 */
+:root {
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --bg-color: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --radius-md: 0.5rem;
+  --radius-full: 9999px;
+  --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: #f9fafb;
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 480px; /* 모바일 중심 레이아웃 */
+  margin: 0 auto;
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  padding-bottom: 80px; /* 플로팅 버튼 공간 확보 */
+}
+
+/* Header / Hero Section */
+.hero {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(to bottom, #f3f4f6, #ffffff);
+}
+
+.hero-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+
+.hero-concept {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  word-break: keep-all;
+}
+
+/* Info Section */
+.info-section {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-icon {
+  margin-right: 0.75rem;
+  color: var(--primary-color);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.info-text {
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+/* Menu Section */
+.menu-section {
+  padding: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+.menu-list {
+  list-style: none;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* FAQ Floating Button */
+.floating-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  /* 모바일 컨테이너 내에서 중앙 정렬을 위한 조정 (화면이 넓을 때) */
+  transform: translateX(0);
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-md);
+  transition: background-color 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 50;
+}
+
+.floating-btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+@media (min-width: 480px) {
+  .floating-btn {
+    /* 480px 이상일 경우 컨테이너 우측 하단에 고정 */
+    right: auto;
+    left: 50%;
+    margin-left: 100px; /* 240(반) - 140(대략 너비) */
+  }
+}
+
+/* Loading & Error */
+.loading, .error {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-muted);
+}
+.error {
+  color: #ef4444;
+}
+
+/* FAQ Page Styles */
+.faq-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+}
+
+.back-link {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: 500;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.faq-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.5rem;
+}
+
+.faq-list {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.faq-item {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.faq-q {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #111827;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.faq-a {
+  font-size: 0.95rem;
+  color: #4b5563;
+  line-height: 1.6;
+}
