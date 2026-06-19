@@ -65,6 +65,33 @@ async function initHomePage() {
   }
   metaDesc.content = store.concept || `${store.store_name} 매장 소개입니다.`;
 
+  let metaKeywords = document.querySelector('meta[name="keywords"]');
+  if (!metaKeywords) {
+    metaKeywords = document.createElement('meta');
+    metaKeywords.name = "keywords";
+    document.head.appendChild(metaKeywords);
+  }
+  metaKeywords.content = `${store.store_name}, 매장, 소개, ${store.address ? store.address.split(' ').slice(0, 2).join(' ') : ''}`;
+
+  // JSON-LD 마크업 추가 (SEO / LLM AEO 최적화)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": store.menu && store.menu.length > 0 ? "FoodEstablishment" : "LocalBusiness",
+    "name": store.store_name,
+    "description": store.concept || `${store.store_name} 매장입니다.`,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": store.address || ""
+    },
+    "telephone": store.phone_number || "",
+    "openingHours": store.business_hours || ""
+  };
+  
+  const scriptLd = document.createElement('script');
+  scriptLd.type = 'application/ld+json';
+  scriptLd.text = JSON.stringify(jsonLd);
+  document.head.appendChild(scriptLd);
+
   // FAQ 링크 업데이트
   const faqBtn = document.getElementById('faq-link');
   if (faqBtn) {
@@ -84,32 +111,32 @@ async function initHomePage() {
   }
 
   container.innerHTML = `
-    <div class="hero">
+    <header class="hero">
       <h1 class="hero-title">${store.store_name || '이름 없는 매장'}</h1>
       <p class="hero-concept">${store.concept || '안녕하세요! 우리 매장에 오신 것을 환영합니다.'}</p>
-    </div>
+    </header>
     
-    <div class="info-section">
-      <div class="info-item">
+    <section class="info-section">
+      <article class="info-item">
         <svg class="info-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-        <div class="info-text">${store.address || '주소 정보가 없습니다.'}</div>
-      </div>
-      <div class="info-item">
+        <address class="info-text" style="font-style: normal;">${store.address || '주소 정보가 없습니다.'}</address>
+      </article>
+      <article class="info-item">
         <svg class="info-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        <div class="info-text">${store.business_hours || '영업시간 정보가 없습니다.'}</div>
-      </div>
-      <div class="info-item">
+        <time class="info-text">${store.business_hours || '영업시간 정보가 없습니다.'}</time>
+      </article>
+      <article class="info-item">
         <svg class="info-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-        <div class="info-text">${store.phone_number || '전화번호 정보가 없습니다.'}</div>
-      </div>
-    </div>
+        <div class="info-text"><a href="tel:${(store.phone_number || '').replace(/[^0-9]/g, '')}" style="color: inherit; text-decoration: none;">${store.phone_number || '전화번호 정보가 없습니다.'}</a></div>
+      </article>
+    </section>
     
-    <div class="menu-section">
+    <section class="menu-section">
       <h2 class="section-title">대표 메뉴</h2>
       <ul class="menu-list">
         ${menuHtml}
       </ul>
-    </div>
+    </section>
   `;
 }
 
@@ -169,10 +196,10 @@ async function initFaqPage() {
     }
 
     return `
-      <div class="faq-item">
-        <div class="faq-q">Q. ${q.replace(/^Q\.?\s*/i, '')}</div>
+      <article class="faq-item">
+        <h3 class="faq-q">Q. ${q.replace(/^Q\.?\s*/i, '')}</h3>
         <div class="faq-a">${a.replace(/^A\.?\s*/i, '')}</div>
-      </div>
+      </article>
     `;
   }).join('');
 
