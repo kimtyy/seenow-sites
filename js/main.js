@@ -39,6 +39,81 @@ async function fetchFAQs(storeId) {
   }
 }
 
+// 영업시간 포맷팅
+function formatBusinessHours(hoursObj) {
+  if (!hoursObj) return null;
+  
+  let hours = hoursObj;
+  if (typeof hours === 'string') {
+    try {
+      hours = JSON.parse(hours);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  const daysMap = { mon: '월', tue: '화', wed: '수', thu: '목', fri: '금', sat: '토', sun: '일' };
+  const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  
+  const groups = {};
+  
+  dayKeys.forEach(day => {
+    const data = hours[day];
+    if (!data) return;
+    
+    let timeStr;
+    if (data.closed) {
+      timeStr = '휴무';
+    } else if (data.open && data.close) {
+      timeStr = `${data.open} ~ ${data.close}`;
+    } else {
+      return;
+    }
+    
+    if (!groups[timeStr]) {
+      groups[timeStr] = [];
+    }
+    groups[timeStr].push(day);
+  });
+  
+  if (Object.keys(groups).length === 0) return null;
+  
+  const parts = [];
+  for (const [timeStr, days] of Object.entries(groups)) {
+    const sortedDays = days.sort((a, b) => dayKeys.indexOf(a) - dayKeys.indexOf(b));
+    const result = [];
+    let currentGroup = [sortedDays[0]];
+    
+    for (let i = 1; i < sortedDays.length; i++) {
+      const prevDay = currentGroup[currentGroup.length - 1];
+      const currDay = sortedDays[i];
+      
+      if (dayKeys.indexOf(currDay) === dayKeys.indexOf(prevDay) + 1) {
+        currentGroup.push(currDay);
+      } else {
+        if (currentGroup.length >= 2) {
+          result.push(`${daysMap[currentGroup[0]]}~${daysMap[currentGroup[currentGroup.length - 1]]}`);
+        } else {
+          result.push(daysMap[currentGroup[0]]);
+        }
+        currentGroup = [currDay];
+      }
+    }
+    
+    if (currentGroup.length > 0) {
+      if (currentGroup.length >= 2) {
+        result.push(`${daysMap[currentGroup[0]]}~${daysMap[currentGroup[currentGroup.length - 1]]}`);
+      } else {
+        result.push(daysMap[currentGroup[0]]);
+      }
+    }
+    
+    parts.push(`${result.join(', ')}: ${timeStr}`);
+  }
+  
+  return parts.join(' / ');
+}
+
 // 메인 페이지 렌더링
 async function initHomePage() {
   const storeId = getStoreIdFromUrl();
@@ -83,8 +158,8 @@ async function initHomePage() {
       "@type": "PostalAddress",
       "streetAddress": store.address || ""
     },
-    "telephone": store.phone_number || "",
-    "openingHours": store.business_hours || ""
+    "telephone": store.phone || store.phone_number || "",
+    "openingHours": formatBusinessHours(store.hours) || store.business_hours || ""
   };
   
   const scriptLd = document.createElement('script');
@@ -96,6 +171,19 @@ async function initHomePage() {
   const faqBtn = document.getElementById('faq-link');
   if (faqBtn) {
     faqBtn.href = `faq.html?id=${storeId}`;
+  }
+
+  // 전화번호 및 영업시간 렌더링 준비
+  const formattedHours = formatBusinessHours(store.hours) || store.business_hours || '영업시간 정보가 없습니다.';
+  const phone = store.phone || store.phone_number;
+  let phoneSection = '';
+  if (phone) {
+    phoneSection = `
+      <article class="info-item">
+        <svg class="info-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+        <div class="info-text"><a href="tel:${phone.replace(/[^0-9]/g, '')}" style="color: inherit; text-decoration: none;">${phone}</a></div>
+      </article>
+    `;
   }
 
   // HTML 렌더링
@@ -123,12 +211,9 @@ async function initHomePage() {
       </article>
       <article class="info-item">
         <svg class="info-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        <time class="info-text">${store.business_hours || '영업시간 정보가 없습니다.'}</time>
+        <time class="info-text">${formattedHours}</time>
       </article>
-      <article class="info-item">
-        <svg class="info-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-        <div class="info-text"><a href="tel:${(store.phone_number || '').replace(/[^0-9]/g, '')}" style="color: inherit; text-decoration: none;">${store.phone_number || '전화번호 정보가 없습니다.'}</a></div>
-      </article>
+      ${phoneSection}
     </section>
     
     <section class="menu-section">
