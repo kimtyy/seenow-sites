@@ -27,10 +27,16 @@ function formatBusinessHours(hoursObj) {
     if (!data) return;
     
     let timeStr;
-    if (data.closed) {
-      timeStr = '휴무';
-    } else if (data.open && data.close) {
-      timeStr = `${data.open} ~ ${data.close}`;
+    if (typeof data === 'string') {
+      timeStr = data;
+    } else if (typeof data === 'object') {
+      if (data.closed) {
+        timeStr = '휴무';
+      } else if (data.open && data.close) {
+        timeStr = `${data.open} ~ ${data.close}`;
+      } else {
+        return;
+      }
     } else {
       return;
     }
@@ -56,20 +62,20 @@ function formatBusinessHours(hoursObj) {
       if (dayKeys.indexOf(currDay) === dayKeys.indexOf(prevDay) + 1) {
         currentGroup.push(currDay);
       } else {
-        if (currentGroup.length >= 2) {
+        if (currentGroup.length >= 3) {
           result.push(`${daysMap[currentGroup[0]]}~${daysMap[currentGroup[currentGroup.length - 1]]}`);
         } else {
-          result.push(daysMap[currentGroup[0]]);
+          result.push(currentGroup.map(d => daysMap[d]).join(', '));
         }
         currentGroup = [currDay];
       }
     }
     
     if (currentGroup.length > 0) {
-      if (currentGroup.length >= 2) {
+      if (currentGroup.length >= 3) {
         result.push(`${daysMap[currentGroup[0]]}~${daysMap[currentGroup[currentGroup.length - 1]]}`);
       } else {
-        result.push(daysMap[currentGroup[0]]);
+        result.push(currentGroup.map(d => daysMap[d]).join(', '));
       }
     }
     
