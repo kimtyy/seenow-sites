@@ -16,13 +16,13 @@ export default async function handler(req, res) {
   try {
     const [storeRes, faqsRes] = await Promise.all([
       supabaseClient.from('stores').select('store_name').eq('id', id).single(),
-      supabaseClient.from('contents').select('*').eq('store_id', id).eq('type', '질문뱅크(FAQ)').order('created_at', { ascending: true })
+      supabaseClient.from('faqs').select('question, answer').eq('store_id', id).order('created_at', { ascending: true })
     ]);
 
     const store = storeRes.data;
     const faqs = faqsRes.data || [];
 
-    const storeName = store ? store.store_name : '매장';
+    const storeName = store ? store.store_name : '업체';
     const title = `${storeName} - FAQ`;
 
     let faqHtml = '';
@@ -30,27 +30,8 @@ export default async function handler(req, res) {
       faqHtml = '<div class="loading">등록된 FAQ가 없습니다.</div>';
     } else {
       faqHtml = faqs.map(faq => {
-        let q = '질문';
-        let a = '답변';
-        
-        if (typeof faq.content_data === 'string') {
-          try {
-            const parsed = JSON.parse(faq.content_data);
-            q = parsed.question || faq.content_data;
-            a = parsed.answer || '';
-          } catch (e) {
-            const parts = faq.content_data.split('\n');
-            q = parts[0] || '';
-            a = parts.slice(1).join('<br>') || '';
-          }
-        } else if (faq.content_data && typeof faq.content_data === 'object') {
-          q = faq.content_data.question || faq.content_data.Q || faq.content_data.q || '';
-          a = faq.content_data.answer || faq.content_data.A || faq.content_data.a || '';
-        } else if (faq.content_text) {
-          const parts = faq.content_text.split('\n');
-          q = parts[0] || '';
-          a = parts.slice(1).join('<br>') || '';
-        }
+        const q = faq.question || '';
+        const a = faq.answer || '';
 
         return `
           <article class="faq-item">
