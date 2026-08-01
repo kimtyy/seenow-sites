@@ -338,21 +338,19 @@ export default async function handler(req, res) {
       `;
     }
 
-    // ⑦ 특징 / 강점 섹션
+    // '캐디' -> '직원' 교체 헬퍼
+    function replaceCaddy(str) {
+      if (!str || typeof str !== 'string') return str;
+      return str.replace(/캐디/g, '직원');
+    }
+
+    // ⑦ 특징 / 강점 섹션 ("추천 타겟 고객" 섹션은 HTML 화면에서 제거, Schema.org에는 보존)
     let featureItems = '';
     if (store.story) {
       featureItems += `
         <div class="feature-item">
           <div class="feature-title">✨ 핵심 스토리</div>
-          <div class="feature-desc">${store.story}</div>
-        </div>
-      `;
-    }
-    if (store.target_customers) {
-      featureItems += `
-        <div class="feature-item">
-          <div class="feature-title">🎯 추천 타겟 고객</div>
-          <div class="feature-desc">${store.target_customers}</div>
+          <div class="feature-desc">${replaceCaddy(store.story)}</div>
         </div>
       `;
     }
@@ -360,7 +358,7 @@ export default async function handler(req, res) {
       featureItems += `
         <div class="feature-item">
           <div class="feature-title">📍 주변 환경 & 맥락</div>
-          <div class="feature-desc">${store.local_context}</div>
+          <div class="feature-desc">${replaceCaddy(store.local_context)}</div>
         </div>
       `;
     }
